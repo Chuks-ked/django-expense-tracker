@@ -12,36 +12,50 @@
                     <h4>Register for a free account</h4>
                 </div>
 
-                <form action="" methos='POST'>
+                <form action="{% url 'register' %}" method='post'>
+                    {% csrf_token %}
+
+                    {% include 'partials/_messages.html' %}
+
                     <div class="form-group">
                         <input type="text" 
                         name="username" 
                         placeholder='Username'
                         id="usernameField" 
+                        value="{{fieldValues.username}}"
                         class="form-control form-control-sm">
                     </div>
                     <div class="invalid_feedback" style='display:none'>
-                        
                     </div>  
+
+                    <p class='text-sm text-primary usernameSuccessOutput'> </p>
+
+
                     <div class="form-group">
                         <input type="email" 
                         name="email" 
                         placeholder="Email"
                         id="emailField" 
+                        value="{{fieldValues.email}}"
                         class="form-control form-control-sm">
                     </div>
+                    <div class="emailFeedbackArea invalid_feedback" style='display: none;' ></div>
+
+                    <p class="text-sm text-primary emailSuccessOutput"></p>
+
+
                     <div class="form-group">
                         <input type="password" 
                         name="password" 
                         placeholder="Password"
                         id="passwordField" 
                         class="form-control form-control-sm">
-                        <small class="float-end py-2">SHOW</small>
+                        <small class="float-end py-2 showPasswordToggle">SHOW</small>
                         <br>
                     </div>
                     <br>
                     <div class="d-grid">
-                        <input type="submit" value="Register" class="btn btn-primary">
+                        <input type="submit" value="Register" class="btn btn-primary submit-btn">
                     </div>
                 </form>
             </div>
