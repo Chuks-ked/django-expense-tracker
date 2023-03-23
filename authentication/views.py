@@ -1,14 +1,20 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 import json
 from validate_email import validate_email
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.template.loader import render_to_string
 
+from django.utils.encoding import force_bytes, force_str,DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.sites.shortcuts import get_current_site
+from .utils import token_generator
 
 # Create your views here.
 class EmailValidation(View):
@@ -57,11 +63,16 @@ class RegistrationView(View):
                 user.is_active= False
                 user.save()
 
-                template = render_to_string('authentication/email_template.html', {'username':username})
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
 
+                domain = get_current_site(request).domain
+                link = reverse('activate', kwargs={'uidb64':uidb64, 'token':token_generator.make_token(user)})
+
+                activate_url= 'http://'+domain+link
+
+                template = render_to_string('authentication/email_template.html', {'username':username, "activate_url":activate_url})
                 email_subject = 'Activate your account'
                 email_body = template
-
                 email = EmailMessage(
                     email_subject,
                     email_body,
@@ -75,3 +86,61 @@ class RegistrationView(View):
                 
         return render(request, 'authentication/register.html')
 
+class VerificationView(View):
+    def get(self, request, uidb64, token):
+
+        try:
+            id=force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=id)
+
+            if not token_generator.check_token(user, token):
+                return redirect('login'+'?message='+'User already activated')
+
+            if user.is_active:
+                return redirect('login')
+            user.is_active = True
+            user.save()
+
+            messages.success(request, 'Account activated successfully')
+            return redirect('login')
+
+        except Exception as ex:
+            pass
+
+        return redirect('login')
+
+        
+    
+class LoginView(View):
+    def get(self, request):
+        return render(request, 'authentication/login.html')
+    
+    def post(self, request):
+        username = request.POST['username']
+        password = request.POST['password']
+
+        if username and password:
+            user=authenticate(username=username, password=password)
+
+            if user:
+                if user.is_active:
+                    login(request, user)
+                    messages.success(request, 'Welcome, '+user.username+' you are now logged in')
+
+                    return redirect('expenses')
+            
+                messages.error(request, 'Account is not active, please check your email')
+                return render(request, 'authentication/login.html')
+            
+            messages.error(request, 'Invalid credentials')
+            return render(request, 'authentication/login.html')
+        
+        messages.error(request, 'Please fill the fields')
+        return render(request, 'authentication/login.html')
+        
+
+class LogoutView(View):
+    def post(self, request):
+        logout(request)
+        messages.success(request, 'You have been logged out')
+        return redirect('login')
