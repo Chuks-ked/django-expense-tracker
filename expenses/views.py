@@ -6,6 +6,8 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 import json
 from django.http import JsonResponse
+from userpreferences.models import UserPreference
+
 # Create your views here.
 
 def search_expenses(request):
@@ -24,14 +26,20 @@ def search_expenses(request):
 
 @login_required(login_url='/authentication/login/')
 def index(request):
+    # if UserPreference.objects.filter(user = request.user).exists():
+    #     currency = UserPreference.objects.get(user = request.user).currency
+    # else:
+    #     currency = 'INR - Indian Rupee'
     categories = Category.objects.all()
     expenses = Expense.objects.filter(owner=request.user)
     paginator= Paginator(expenses, 4)
     page_number = request.GET.get('page')
     page_obj = Paginator.get_page(paginator, page_number)
+    currency = UserPreference.objects.get(user=request.user).currency
     return render(request, 'expenses/index.html',{
         'expenses':expenses,
         'page_obj':page_obj,
+        'currency':currency,
     })
 
 @login_required(login_url='/authentication/login/')
