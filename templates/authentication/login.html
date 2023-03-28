@@ -39,11 +39,16 @@
                     </div>
                 </form>
             </div>
+           <div class="container">
+            <span> Dont have an account? <a href="{% url 'register' %}">Register</a> </span>
+            <br>
+           <span> Forget password? <a href="{% url 'reset-link' %}">Reset</a> </span>
+           </div>
         </div>
     </div>
     <div class="col-md-4"></div>
 </div>
 
 <script src="{% static 'js/register.js' %}"></script>
-
+    
 {% endblock  %}
