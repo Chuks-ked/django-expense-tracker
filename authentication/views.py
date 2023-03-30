@@ -118,7 +118,6 @@ class VerificationView(View):
             pass
 
         return redirect('login')
-
         
     
 class LoginView(View):
