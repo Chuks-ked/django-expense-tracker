@@ -1,1 +1,1 @@
-# django-expense-tracker
+# django-expenses-tracker
