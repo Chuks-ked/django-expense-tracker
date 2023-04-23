@@ -148,7 +148,7 @@ def stats_view(request):
 
 def export_csv(request):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition']='attachment; filename=Expenses' + \ datetime.datetime.now() + '.csv'
+    response['Content-Disposition']='attachment; filename=Expenses' + str(datetime.datetime.now()) + '.csv'
 
     writer = csv.writer(response)
     writer.writerow(['Amount', 'Description', 'Category', 'Date'])
