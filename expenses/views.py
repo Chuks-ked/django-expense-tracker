@@ -192,11 +192,15 @@ def export_excel(request):
 
 def export_pdf(request):
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition']='attachment; filename=Expenses' + str(datetime.datetime.now()) + '.pdf'
+    response['Content-Disposition']='inline; attachment; filename=Expenses' + str(datetime.datetime.now()) + '.pdf'
 
     response['Content-Transfer-Encoding'] = 'binary'
 
-    html_string=render_to_string('expenses/pdf-output.html', {'expenses':[], 'total':0})
+    expenses=Expense.objects.filter(owner=request.user)
+
+    sum = expenses.aggregate(Sum('amount'))
+
+    html_string=render_to_string('expenses/pdf-output.html', {'expenses':expenses, 'total':sum['amount__sum']})
     html=HTML(string=html_string)
 
     result = html.write_pdf()

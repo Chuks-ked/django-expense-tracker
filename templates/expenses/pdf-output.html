@@ -13,11 +13,46 @@
             @top-center{
                 content: 'COMPANY NAME';
             }
+
+            @bottom-right{
+                content: "Page "counter(pages)" of " counter(pages);
+            }
         }
     </style>
 </head>
 <body>
     <img src="https://yt3.ggpht.com/a-/AOh14GjwSplm_qOkuCFYI021gXv%xY1ywjtBmnNv2_slnQ=s100-c-k-c0xffffffff-no-rj-mo" alt="">
     
+    <h2>Expense List</h2>
+
+    <table class="table">
+        <thead class="thead">
+            <tr>
+                <th>No</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{expense.amount}}</td>
+                <td>{{expense.category}}</td>
+                <td>{{expense.description}}</td>
+                <td>{{expense.date}}</td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+                <td>Total:</td>
+                <td>{{total}}</td>
+            </tr>
+
+        </tbody>
+    </table>
 </body>
 </html>
